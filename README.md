@@ -21,7 +21,7 @@ Follow these steps to set up and run `Solmate` on your local machine.
 
 ### Prerequisites
 
-1. **Node.js** (v16 or higher recommended)
+1. **Node.js** (v20 or higher recommended)
    - Download and install Node.js from the [official website](https://nodejs.org/).
 
      After installation, verify the version:
